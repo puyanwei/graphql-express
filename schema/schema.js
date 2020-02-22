@@ -130,6 +130,24 @@ const mutation = new GraphQLObjectType({
                     return console.log(error)
                 }
             }
+        },
+        deleteUser: {
+            type: UserType,
+            args: {
+                id: {
+                    type: new GraphQLNonNull(GraphQLString)
+                }
+            },
+            async resolve(parentValue, {
+                id
+            }) {
+                try {
+                    const response = await axios.delete(`http://localhost:3000/users/${id}`)
+                    return response.data
+                } catch (error) {
+                    return console.log(error)
+                }
+            }
         }
     }
 })
