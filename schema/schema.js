@@ -4,7 +4,9 @@ import {
     GraphQLString,
     GraphQLInt,
     GraphQLSchema,
-    GraphQLList
+    GraphQLList,
+    GraphQLInputObjectType,
+    GraphQLNonNull
 } from 'graphql'
 
 const CompanyType = new GraphQLObjectType({
@@ -97,6 +99,42 @@ const RootQuery = new GraphQLObjectType({
     }
 })
 
+const mutation = new GraphQLObjectType({
+    name: 'Mutation',
+    fields: {
+        addUser: {
+            type: UserType,
+            args: {
+                firstName: {
+                    type: new GraphQLNonNull(GraphQLString)
+                },
+                age: {
+                    type: GraphQLInt
+                },
+                companyId: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parentValue, {
+                firstName,
+                age,
+                companyId
+            }) {
+                try {
+                    const response = await axios.post('http://localhost:3000/users', {
+                        firstName,
+                        age
+                    })
+                    return response.data
+                } catch (error) {
+                    return console.log(error)
+                }
+            }
+        }
+    }
+})
+
 export const schema = new GraphQLSchema({
-    query: RootQuery
+    query: RootQuery,
+    mutation
 })
