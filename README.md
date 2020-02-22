@@ -22,3 +22,5 @@ npm run json:server
 ```
 
 Run the schemas in Graphiql by going to `http://localhost:4000/graphql`
+
+After running the schemas successfully you should be able to see the changes applied in the `db.json` file.
