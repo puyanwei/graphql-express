@@ -6,6 +6,21 @@ import {
     GraphQLSchema,
 } from 'graphql'
 
+const CompanyType = new GraphQLObjectType({
+    name: 'Company',
+    fields: {
+        id: {
+            type: GraphQLString
+        },
+        name: {
+            type: GraphQLString
+        },
+        description: {
+            type: GraphQLString
+        }
+    }
+})
+
 const UserType = new GraphQLObjectType({
     name: 'User',
     fields: {
@@ -17,6 +32,18 @@ const UserType = new GraphQLObjectType({
         },
         age: {
             type: GraphQLInt
+        },
+        company: {
+            type: CompanyType,
+            async resolve(parentValue, args) {
+                try {
+                    const response = await axios.get(`http://localhost:3000/companies/${parentValue.companyId}`)
+                    console.log(response)
+                    return response.data
+                } catch (error) {
+                    return console.log(error)
+                }
+            }
         }
     }
 })
@@ -31,10 +58,13 @@ const RootQuery = new GraphQLObjectType({
                     type: GraphQLString
                 }
             },
-            resolve(parentValue, args) {
-                return axios.get(`http://localhost:3000/users/${args.id}`)
-                    .then((response) => response.data)
-                    .catch((error) => console.log(error))
+            async resolve(parentValue, args) {
+                try {
+                    const response = await axios.get(`http://localhost:3000/users/${args.id}`)
+                    return response.data
+                } catch (error) {
+                    return console.log(error)
+                }
             }
         }
     }
