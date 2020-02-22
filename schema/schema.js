@@ -4,11 +4,12 @@ import {
     GraphQLString,
     GraphQLInt,
     GraphQLSchema,
+    GraphQLList
 } from 'graphql'
 
 const CompanyType = new GraphQLObjectType({
     name: 'Company',
-    fields: {
+    fields: () => ({
         id: {
             type: GraphQLString
         },
@@ -17,13 +18,24 @@ const CompanyType = new GraphQLObjectType({
         },
         description: {
             type: GraphQLString
+        },
+        users: {
+            type: new GraphQLList(UserType),
+            async resolve(parentValue, args) {
+                try {
+                    const response = await axios.get(`http://localhost:3000/companies/${parentValue.id}/users`)
+                    return response.data
+                } catch (error) {
+                    return console.log(error)
+                }
+            }
         }
-    }
+    })
 })
 
 const UserType = new GraphQLObjectType({
     name: 'User',
-    fields: {
+    fields: () => ({
         id: {
             type: GraphQLString
         },
@@ -38,14 +50,13 @@ const UserType = new GraphQLObjectType({
             async resolve(parentValue, args) {
                 try {
                     const response = await axios.get(`http://localhost:3000/companies/${parentValue.companyId}`)
-                    console.log(response)
                     return response.data
                 } catch (error) {
                     return console.log(error)
                 }
             }
         }
-    }
+    })
 })
 
 const RootQuery = new GraphQLObjectType({
@@ -61,6 +72,22 @@ const RootQuery = new GraphQLObjectType({
             async resolve(parentValue, args) {
                 try {
                     const response = await axios.get(`http://localhost:3000/users/${args.id}`)
+                    return response.data
+                } catch (error) {
+                    return console.log(error)
+                }
+            }
+        },
+        company: {
+            type: CompanyType,
+            args: {
+                id: {
+                    type: GraphQLString
+                }
+            },
+            async resolve(parentValue, args) {
+                try {
+                    const response = await axios.get(`http://localhost:3000/companies/${args.id}`)
                     return response.data
                 } catch (error) {
                     return console.log(error)
